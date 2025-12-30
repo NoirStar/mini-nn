@@ -6,33 +6,46 @@
 
 - **variadic templates** 심화 학습
 - **fold expressions** 실전 활용
-- **CRTP** 패턴 이해
+- **concepts** 타입 제약
 - 컴파일 타임 **타입 안전성** 설계
 
-## 목표
+## 구현 완료
 
 ```cpp
-// 이런 코드를 만들 거예요!
+// 이렇게 쓸 수 있어요!
 using MyNetwork = Network<
-    Layer<784, 128, ReLU>,    // 입력층 (28x28 이미지)
+    Layer<784, 128, ReLU>,    // 입력층
     Layer<128, 64, ReLU>,     // 은닉층
-    Layer<64, 10, Softmax>    // 출력층 (숫자 0~9)
+    Layer<64, 10, Softmax>    // 출력층
 >;
 
 MyNetwork net;
-net.train(data, labels, epochs);
-int digit = net.predict(image);
+Matrix output = net.forward(input);
 ```
 
-## 학습 포인트
+## 배운 것
 
-| 단계 | 주제 | C++ 기능 |
-|------|------|----------|
-| 1 | Matrix 클래스 | 기본 구현 |
-| 2 | Layer 템플릿 | CRTP, 활성화 함수 |
-| 3 | Network 템플릿 | variadic, fold expressions |
-| 4 | 타입 검증 | static_assert, concepts |
-| 5 | 학습 & 시각화 | 실제 MNIST 테스트 |
+| 개념 | 예시 | 사용처 |
+|------|------|--------|
+| **variadic templates** | `typename... Layers` | Network 다중 Layer |
+| **fold expression** | `(result = layers.forward(result), ...)` | 순차 실행 |
+| **pack expansion** | `Rest...` | 펼쳐서 전달 |
+| **부분 특수화** | `is_valid_chain<First, Second, Rest...>` | 재귀 패턴 매칭 |
+| **concepts** | `Activation` | 타입 제약 |
+| **static_assert** | `is_valid_chain<Layers...>` | 컴파일 타임 검증 |
+
+## 프로젝트 구조
+
+```
+mini-nn/
+├── include/mini-nn/
+│   ├── matrix.hpp      # 행렬 연산
+│   ├── activation.hpp  # ReLU, Sigmoid, Softmax + Concept
+│   ├── layer.hpp       # Layer<In, Out, Activation>
+│   └── network.hpp     # Network<Layers...> + 연결 검증
+├── test_main.cpp
+└── CMakeLists.txt
+```
 
 ## 빌드
 
